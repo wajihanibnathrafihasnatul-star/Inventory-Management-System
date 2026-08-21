@@ -3,13 +3,26 @@ include 'db.php';
 
 if(isset($_POST['save'])){
 
-    $name = $_POST['name'];
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price'];
+    $name = trim($_POST['name']);
+    $quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_INT);
+    $price = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
+
+    if($name === ''){
+        die("Product name is required.");
+    }
+
+    if($quantity === false || $quantity < 0){
+        die("Quantity must be a valid non-negative number.");
+    }
+
+    if($price === false || $price < 0){
+        die("Price must be a valid non-negative number.");
+    }
 
     $stmt = mysqli_prepare(
         $conn,
-        "INSERT INTO products(product_name, quantity, price) VALUES (?, ?, ?)"
+        "INSERT INTO products(product_name, quantity, price)
+         VALUES (?, ?, ?)"
     );
 
     mysqli_stmt_bind_param($stmt, "sid", $name, $quantity, $price);
@@ -31,15 +44,15 @@ Product Name:
 <br>
 
 Quantity:
-<input type="number" name="quantity" required>
+<input type="number" name="quantity" min="0" required>
 
 <br>
 
 Price:
-<input type="number" name="price" required>
+<input type="number" name="price" min="0" step="0.01" required>
 
 <br>
 
-<button name="save">Save</button>
+<button type="submit" name="save">Save</button>
 
 </form>
