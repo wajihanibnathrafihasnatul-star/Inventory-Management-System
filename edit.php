@@ -1,27 +1,53 @@
 <?php
 include 'db.php';
 
-$id=$_GET['id'];
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-$data=mysqli_fetch_assoc(
-mysqli_query($conn,
-"SELECT * FROM products WHERE id=$id")
-);
+if (!$id) {
+    die("Invalid product ID");
+}
 
-if(isset($_POST['update'])){
+$stmt = mysqli_prepare($conn, "SELECT * FROM products WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
 
-$name=$_POST['name'];
-$quantity=$_POST['quantity'];
-$price=$_POST['price'];
+$result = mysqli_stmt_get_result($stmt);
+$data = mysqli_fetch_assoc($result);
 
-mysqli_query($conn,
-"UPDATE products
-SET product_name='$name',
-quantity='$quantity',
-price='$price'
-WHERE id=$id");
+mysqli_stmt_close($stmt);
 
-header("Location:index.php");
+if (!$data) {
+    die("Product not found");
+}
+
+if (isset($_POST['update'])) {
+
+    $name = $_POST['name'];
+    $quantity = $_POST['quantity'];
+    $price = $_POST['price'];
+
+    $stmt = mysqli_prepare(
+        $conn,
+        "UPDATE products
+         SET product_name = ?, quantity = ?, price = ?
+         WHERE id = ?"
+    );
+
+    mysqli_stmt_bind_param(
+        $stmt,
+        "sidi",
+        $name,
+        $quantity,
+        $price,
+        $id
+    );
+
+    mysqli_stmt_execute($stmt);
+
+    mysqli_stmt_close($stmt);
+
+    header("Location: index.php");
+    exit();
 }
 ?>
 
@@ -29,19 +55,22 @@ header("Location:index.php");
 
 <input type="text"
 name="name"
-value="<?php echo $data['product_name']; ?>">
+value="<?php echo htmlspecialchars($data['product_name'], ENT_QUOTES, 'UTF-8'); ?>"
+required>
 
 <br>
 
 <input type="number"
 name="quantity"
-value="<?php echo $data['quantity']; ?>">
+value="<?php echo htmlspecialchars($data['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+required>
 
 <br>
 
 <input type="number"
 name="price"
-value="<?php echo $data['price']; ?>">
+value="<?php echo htmlspecialchars($data['price'], ENT_QUOTES, 'UTF-8'); ?>"
+required>
 
 <br>
 
