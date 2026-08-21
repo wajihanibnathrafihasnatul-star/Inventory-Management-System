@@ -1,10 +1,18 @@
 <?php
 include 'db.php';
 
-$id=$_GET['id'];
+$id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-mysqli_query($conn,
-"DELETE FROM products WHERE id=$id");
+if (!$id) {
+    die("Invalid product ID");
+}
 
-header("Location:index.php");
+$stmt = mysqli_prepare($conn, "DELETE FROM products WHERE id = ?");
+mysqli_stmt_bind_param($stmt, "i", $id);
+mysqli_stmt_execute($stmt);
+
+mysqli_stmt_close($stmt);
+
+header("Location: index.php");
+exit();
 ?>
