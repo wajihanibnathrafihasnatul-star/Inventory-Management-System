@@ -1,7 +1,7 @@
 <?php
 include 'db.php';
 
-$result = mysqli_query($conn,"SELECT * FROM products");
+$result = mysqli_query($conn, "SELECT * FROM products");
 ?>
 
 <!DOCTYPE html>
@@ -28,25 +28,28 @@ $result = mysqli_query($conn,"SELECT * FROM products");
 <th>Action</th>
 </tr>
 
-<?php while($row=mysqli_fetch_assoc($result)){ ?>
+<?php while($row = mysqli_fetch_assoc($result)){ ?>
 
 <tr>
 
-<td><?php echo $row['id']; ?></td>
+<td><?php echo (int)$row['id']; ?></td>
 
-<td><?php echo $row['product_name']; ?></td>
+<td><?php echo htmlspecialchars($row['product_name'], ENT_QUOTES, 'UTF-8'); ?></td>
 
-<td><?php echo $row['quantity']; ?></td>
+<td><?php echo (int)$row['quantity']; ?></td>
 
-<td><?php echo $row['price']; ?></td>
+<td><?php echo htmlspecialchars($row['price'], ENT_QUOTES, 'UTF-8'); ?></td>
 
 <td>
 
-<a href="edit.php?id=<?php echo $row['id']; ?>">Edit</a>
+<a href="edit.php?id=<?php echo (int)$row['id']; ?>">Edit</a>
 
 |
 
-<a href="delete.php?id=<?php echo $row['id']; ?>">Delete</a>
+<a href="delete.php?id=<?php echo (int)$row['id']; ?>"
+   onclick="return confirm('Are you sure you want to delete this product?');">
+   Delete
+</a>
 
 </td>
 
