@@ -22,9 +22,21 @@ if (!$data) {
 
 if (isset($_POST['update'])) {
 
-    $name = $_POST['name'];
-    $quantity = $_POST['quantity'];
-    $price = $_POST['price'];
+    $name = trim($_POST['name']);
+    $quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_INT);
+    $price = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
+
+    if ($name === '') {
+        die("Product name is required.");
+    }
+
+    if ($quantity === false || $quantity < 0) {
+        die("Quantity must be a valid non-negative number.");
+    }
+
+    if ($price === false || $price < 0) {
+        die("Price must be a valid non-negative number.");
+    }
 
     $stmt = mysqli_prepare(
         $conn,
@@ -63,6 +75,7 @@ required>
 <input type="number"
 name="quantity"
 value="<?php echo htmlspecialchars($data['quantity'], ENT_QUOTES, 'UTF-8'); ?>"
+min="0"
 required>
 
 <br>
@@ -70,10 +83,12 @@ required>
 <input type="number"
 name="price"
 value="<?php echo htmlspecialchars($data['price'], ENT_QUOTES, 'UTF-8'); ?>"
+min="0"
+step="0.01"
 required>
 
 <br>
 
-<button name="update">Update</button>
+<button type="submit" name="update">Update</button>
 
 </form>
